@@ -1,10 +1,11 @@
 {
+  "entry": "./index.js",
   "build": {
     "installCommand": "",
-    "buildCommand": "",
-    "outputDir": "/"
+    "buildCommand": ""
   },
   "assets": {
-    "path": "/"
+    "directory": "./",
+    "notFoundStrategy": "404Page"
   }
 }
