@@ -3,5 +3,8 @@
     "installCommand": "",
     "buildCommand": "",
     "outputDir": "./"
+  },
+  "assets": {
+    "path": "./"
   }
 }
