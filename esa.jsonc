@@ -2,9 +2,9 @@
   "build": {
     "installCommand": "",
     "buildCommand": "",
-    "outputDir": "./"
+    "outputDir": "/"
   },
   "assets": {
-    "path": "./"
+    "path": "/"
   }
 }
