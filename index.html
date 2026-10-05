@@ -1,11 +1,69 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<title>M3U订阅源</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IPTV 节目单管理客户端</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h3>订阅地址</h3>
-<p><a href="/index.m3u">/index.m3u</a></p>
+
+<header class="topbar">
+  <div class="brand">📺 IPTV 节目单管理</div>
+  <div class="stats" id="stats"></div>
+  <div class="actions">
+    <button id="btn-load" title="从仓库 index.m3u 重新加载">↻ 加载源</button>
+    <button id="btn-file" title="打开本地 .m3u / .txt 文件">📂 打开文件</button>
+    <button id="btn-paste" title="粘贴播放列表文本">✎ 粘贴</button>
+    <button id="btn-epg" title="设置 / 加载 EPG (XMLTV)">📡 EPG</button>
+    <button id="btn-export" title="导出当前播放列表">⬇ 导出</button>
+    <button id="btn-theme" title="切换深色 / 浅色">🌓</button>
+    <input type="file" id="file-input" accept=".m3u,.m3u8,.txt" hidden>
+  </div>
+</header>
+
+<main class="layout">
+  <aside class="sidebar">
+    <input type="search" id="search" placeholder="🔍 搜索频道名称…" autocomplete="off">
+    <div class="groups" id="groups"></div>
+  </aside>
+
+  <section class="listpane">
+    <div class="listbar">
+      <label class="selall"><input type="checkbox" id="sel-all"> 全选</label>
+      <select id="sort" title="排序方式">
+        <option value="order">默认顺序</option>
+        <option value="name">按名称</option>
+        <option value="group">按分组</option>
+        <option value="src">按源数量</option>
+      </select>
+      <button id="btn-add">＋ 新增频道</button>
+      <button id="btn-del-sel" class="danger">🗑 删除选中</button>
+      <span id="sel-count" class="muted"></span>
+    </div>
+    <div class="channels" id="channels"></div>
+  </section>
+
+  <aside class="detail" id="detail">
+    <div class="placeholder">← 在中间选择一个频道，查看 EPG 节目单与预览播放</div>
+  </aside>
+</main>
+
+<!-- 通用 modal -->
+<div class="modal-mask" id="modal-mask" hidden>
+  <div class="modal">
+    <div class="modal-head">
+      <span id="modal-title">编辑</span>
+      <button id="modal-close" aria-label="关闭">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot" id="modal-foot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
