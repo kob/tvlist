@@ -17,7 +17,7 @@ const state = {
   sort: 'order',
   selected: new Set(),
   epg: { byId:{}, byName:{}, programmes:{} },
-  epgUrl: localStorage.getItem(LS_EPG) || '112114.xml',
+  epgUrl: localStorage.getItem(LS_EPG) || 'epg.xml.gz',
   activeId: null,
 };
 
@@ -278,10 +278,24 @@ function parseEPGtime(s){
 }
 function fmt(dt){ if(!dt||isNaN(dt)) return ''; try{ return new Date(dt).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}); }catch(_){ return ''; } }
 
-function loadEpg(url){
+async function gunzipText(buf){
+  const ds = new DecompressionStream('gzip');
+  const stream = new Response(buf).body.pipeThrough(ds);
+  return await new Response(stream).text();
+}
+async function loadEpg(url){
   if (!url) return;
   toast('正在加载 EPG: ' + url);
-  fetch(url).then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); }).then(txt=>{
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    let txt;
+    if (/\.gz($|\?)/i.test(url)) {
+      const buf = await r.arrayBuffer();
+      txt = await gunzipText(buf);
+    } else {
+      txt = await r.text();
+    }
     const doc = new DOMParser().parseFromString(txt, 'application/xml');
     if (doc.querySelector('parsererror')) throw new Error('XML 解析失败');
     const epg = { byId:{}, byName:{}, programmes:{} };
@@ -303,7 +317,7 @@ function loadEpg(url){
     renderStats(); renderChannels();
     if (state.activeId){ const c = state.channels.find(x=>x.id===state.activeId); if(c) openDetail(c); }
     toast(`EPG 加载完成：频道 ${Object.keys(epg.byId).length} 个，含节目 ${Object.values(epg.programmes).reduce((a,b)=>a+b.length,0)} 条`);
-  }).catch(err=> toast('EPG 加载失败：' + err.message));
+  } catch(err){ toast('EPG 加载失败：' + err.message); }
 }
 function epgFor(ch){
   if (ch.tvgId && state.epg.programmes[ch.tvgId]) return state.epg.programmes[ch.tvgId];
@@ -537,13 +551,13 @@ function bind(){
   };
   $('#btn-epg').onclick = ()=>{
     $('#modal-title').textContent = '加载 EPG (XMLTV)';
-    $('#modal-body').innerHTML = `<div class="field"><label>XMLTV 地址（仓库内默认 112114.xml，或任意 URL / 留空加载默认）</label>
-      <input id="epg-url" value="${escapeHtml(state.epgUrl)}" placeholder="112114.xml 或 https://.../epg.xml"></div>
-      <div class="muted">EPG 会按频道 tvg-id 优先、名称次之自动匹配到节目单。</div>`;
+    $('#modal-body').innerHTML = `<div class="field"><label>XMLTV 地址（仓库内默认 epg.xml.gz，或任意 URL / 留空加载默认）</label>
+      <input id="epg-url" value="${escapeHtml(state.epgUrl)}" placeholder="epg.xml.gz 或 https://.../epg.xml"></div>
+      <div class="muted">EPG 会按频道 tvg-id 优先、名称次之自动匹配到节目单。地址以 .gz 结尾时会自动解压。</div>`;
     $('#modal-foot').innerHTML = `<button id="m-cancel">取消</button><button class="primary" id="m-load">加载</button>`;
     $('#modal-mask').hidden = false;
     $('#m-cancel').onclick = closeModal;
-    $('#m-load').onclick = ()=>{ const u=$('#epg-url').value.trim()||'112114.xml'; closeModal(); loadEpg(u); };
+    $('#m-load').onclick = ()=>{ const u=$('#epg-url').value.trim()||'epg.xml.gz'; closeModal(); loadEpg(u); };
   };
   $('#btn-export').onclick = openExport;
   $('#btn-save').onclick = saveToRepo;
@@ -578,7 +592,7 @@ function init(){
   bind();
   if (restore()){ renderAll(); toast('已恢复上次编辑的列表（点击「↻ 加载源」可重新载入 index.m3u）'); }
   else loadDefault();
-  // 尝试自动加载 EPG（仓库内 112114.xml 不存在也不影响）
-  if (state.epgUrl) fetch(state.epgUrl).then(r=>r.ok?r.text():null).then(t=>{ if(t) loadEpg(state.epgUrl); }).catch(()=>{});
+  // 尝试自动加载 EPG（仓库内 epg.xml.gz 不存在也不影响）
+  if (state.epgUrl) loadEpg(state.epgUrl).catch(()=>{});
 }
 init();

@@ -1,4 +1,4 @@
-name: Update EPG (112114.xml)
+name: Update & Merge EPG (epg.xml)
 
 on:
   schedule:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:        # 允许在 Actions 页面手动运行
 
 permissions:
-  contents: write           # 允许工作流把解压后的文件提交回仓库
+  contents: write           # 允许工作流把合并后的文件提交回仓库
 
 jobs:
   update-epg:
@@ -15,25 +15,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download & extract EPG
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Merge EPG sources into epg.xml
         run: |
           set -euo pipefail
-          URL="https://gitee.com/taksssss/tv/raw/main/epg/112114.xml.gz"
-          echo "Downloading $URL"
-          curl -fL --retry 3 --retry-delay 10 -o 112114.xml.gz "$URL"
-          echo "Verifying gzip magic..."
-          file 112114.xml.gz
-          gunzip -f 112114.xml.gz
-          echo "Extracted -> $(ls -la 112114.xml)"
+          python scripts/merge_epg.py
+          echo "--- 产物大小 ---"
+          ls -la epg.xml
+
+      - name: Remove stale single-source artifact
+        run: git rm --ignore-unmatch 112114.xml epg.xml || true
 
       - name: Commit & push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add 112114.xml
+          git add epg.xml.gz
           if git diff --cached --quiet; then
             echo "No changes, skipping commit"
           else
-            git commit -m "chore(epg): update 112114.xml"
+            git commit -m "chore(epg): merge EPG sources into epg.xml.gz"
             git push
           fi
