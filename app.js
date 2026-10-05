@@ -485,7 +485,15 @@ function copyText(t){ navigator.clipboard?.writeText(t).then(()=>toast('已复�
 
 function openExport(){
   $('#modal-title').textContent = '导出播放列表';
-  $('#modal-body').innerHTML = `<div class="muted" style="margin-bottom:10px">导出当前（含筛选后的可见）频道。推荐用「中文源」格式以兼容 taksssss/IPTV 播放器。</div>
+  const groups = groupsOf(state.channels).map(([n,c])=>
+    `<label class="chk"><input type="checkbox" class="exp-grp" value="${escapeHtml(n)}" checked> ${escapeHtml(n)} <span class="cnt">${c}</span></label>`).join('');
+  $('#modal-body').innerHTML = `<div class="muted" style="margin-bottom:10px">选择要导出的分组（默认全选）。推荐用「中文源」格式以兼容 taksssss/IPTV 播放器。</div>
+    <div class="exp-grp-tools">
+      <button id="exp-all" class="mini">全选</button>
+      <button id="exp-none" class="mini">全不选</button>
+      <span class="muted" id="exp-cnt"></span>
+    </div>
+    <div class="exp-groups" id="exp-groups">${groups}</div>
     <div class="field" style="margin-top:10px"><label>EPG 源 URL（写入导出文件，供外部播放器匹配节目单；留空则不写）</label>
       <input id="exp-epg" value="${escapeHtml(state.epgUrl)}" placeholder="epg.xml 或 https://.../epg.xml"></div>
     <div class="muted">标准 M3U 会写入头部 <code>url-tvg</code>；中文源会写入首行注释 <code># EPG: ...</code>。默认取当前已加载的 EPG 地址，可改为任意地址。</div>`;
@@ -495,11 +503,25 @@ function openExport(){
     <button id="ex-copy">📋 复制中文源</button>
     <button id="m-cancel">关闭</button>`;
   $('#modal-mask').hidden = false;
-  const list = visibleChannels();
+
+  const expList = ()=>{
+    const sel = new Set([...document.querySelectorAll('#exp-groups .exp-grp:checked')].map(i=>i.value));
+    let list = state.channels.filter(c=>sel.has(c.group));
+    if (state.sort==='name') list=[...list].sort((a,b)=>a.name.localeCompare(b.name,'zh'));
+    else if (state.sort==='group') list=[...list].sort((a,b)=>a.group.localeCompare(b.group,'zh')||a.name.localeCompare(b.name,'zh'));
+    else if (state.sort==='src') list=[...list].sort((a,b)=>b.urls.length-a.urls.length);
+    return list;
+  };
+  const updCnt = ()=>{ const n=document.querySelectorAll('#exp-groups .exp-grp:checked').length; const t=document.querySelectorAll('#exp-groups .exp-grp').length; const $c=$('#exp-cnt'); if($c)$c.textContent=`已选 ${n}/${t} 个分组`; };
+  updCnt();
+  document.querySelectorAll('#exp-groups .exp-grp').forEach(cb=>cb.onchange=updCnt);
+  $('#exp-all').onclick = ()=>{ document.querySelectorAll('#exp-groups .exp-grp').forEach(cb=>cb.checked=true); updCnt(); };
+  $('#exp-none').onclick = ()=>{ document.querySelectorAll('#exp-groups .exp-grp').forEach(cb=>cb.checked=false); updCnt(); };
+
   const epg = ()=> ($('#exp-epg').value||'').trim();
-  $('#ex-genre').onclick = ()=>{ download('tvlist.txt', toGenre(list, epg()), 'text/plain'); toast('已导出 '+list.length+' 个频道 (中文源)'); };
-  $('#ex-m3u').onclick = ()=>{ download('tvlist.m3u', toM3U(list, epg()), 'application/x-mpegurl'); toast('已导出 '+list.length+' 个频道 (M3U)'); };
-  $('#ex-copy').onclick = ()=>copyText(toGenre(list, epg()));
+  $('#ex-genre').onclick = ()=>{ const list=expList(); download('tvlist.txt', toGenre(list, epg()), 'text/plain'); toast('已导出 '+list.length+' 个频道 (中文源)'); };
+  $('#ex-m3u').onclick = ()=>{ const list=expList(); download('tvlist.m3u', toM3U(list, epg()), 'application/x-mpegurl'); toast('已导出 '+list.length+' 个频道 (M3U)'); };
+  $('#ex-copy').onclick = ()=>copyText(toGenre(expList(), epg()));
   $('#m-cancel').onclick = closeModal;
 }
 
