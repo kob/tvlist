@@ -56,6 +56,7 @@ function parseGenre(text){
   for (let raw of lines){
     const line = raw.trim();
     if (!line) continue;
+    if (line.startsWith('#') && !line.includes('#genre#')) continue;  // 跳过注释行（如 # EPG: ...）
     if (line.includes('#genre#')){
       const name = line.split(',')[0].trim();
       if (name) g = name;
@@ -444,8 +445,8 @@ function deleteChannels(ids){
 }
 
 /* ---------- 导入 / 导出 ---------- */
-function toM3U(chs){
-  let s = '#EXTM3U\n';
+function toM3U(chs, epgUrl){
+  let s = '#EXTM3U' + (epgUrl ? ` url-tvg="${epgUrl}"` : '') + '\n';
   for (const c of chs){
     const a = [];
     if (c.tvgId) a.push(`tvg-id="${c.tvgId}"`);
@@ -457,13 +458,14 @@ function toM3U(chs){
   }
   return s;
 }
-function toGenre(chs){
+function toGenre(chs, epgUrl){
   const order = [], map = new Map();
   for (const c of chs){
     if (!map.has(c.group)){ map.set(c.group, []); order.push(c.group); }
     map.get(c.group).push(c);
   }
   let s = '';
+  if (epgUrl) s += `# EPG: ${epgUrl}\n`;
   for (const g of order){
     s += `${g},#genre#\n`;
     for (const c of map.get(g)){
@@ -483,7 +485,10 @@ function copyText(t){ navigator.clipboard?.writeText(t).then(()=>toast('已复�
 
 function openExport(){
   $('#modal-title').textContent = '导出播放列表';
-  $('#modal-body').innerHTML = `<div class="muted" style="margin-bottom:10px">导出当前（含筛选后的可见）频道。推荐用「中文源」格式以兼容 taksssss/IPTV 播放器。</div>`;
+  $('#modal-body').innerHTML = `<div class="muted" style="margin-bottom:10px">导出当前（含筛选后的可见）频道。推荐用「中文源」格式以兼容 taksssss/IPTV 播放器。</div>
+    <div class="field" style="margin-top:10px"><label>EPG 源 URL（写入导出文件，供外部播放器匹配节目单；留空则不写）</label>
+      <input id="exp-epg" value="${escapeHtml(state.epgUrl)}" placeholder="epg.xml 或 https://.../epg.xml"></div>
+    <div class="muted">标准 M3U 会写入头部 <code>url-tvg</code>；中文源会写入首行注释 <code># EPG: ...</code>。默认取当前已加载的 EPG 地址，可改为任意地址。</div>`;
   $('#modal-foot').innerHTML = `
     <button id="ex-genre">⬇ 中文源 (.txt)</button>
     <button id="ex-m3u">⬇ 标准 M3U</button>
@@ -491,9 +496,10 @@ function openExport(){
     <button id="m-cancel">关闭</button>`;
   $('#modal-mask').hidden = false;
   const list = visibleChannels();
-  $('#ex-genre').onclick = ()=>{ download('tvlist.txt', toGenre(list), 'text/plain'); toast('已导出 '+list.length+' 个频道 (中文源)'); };
-  $('#ex-m3u').onclick = ()=>{ download('tvlist.m3u', toM3U(list), 'application/x-mpegurl'); toast('已导出 '+list.length+' 个频道 (M3U)'); };
-  $('#ex-copy').onclick = ()=>copyText(toGenre(list));
+  const epg = ()=> ($('#exp-epg').value||'').trim();
+  $('#ex-genre').onclick = ()=>{ download('tvlist.txt', toGenre(list, epg()), 'text/plain'); toast('已导出 '+list.length+' 个频道 (中文源)'); };
+  $('#ex-m3u').onclick = ()=>{ download('tvlist.m3u', toM3U(list, epg()), 'application/x-mpegurl'); toast('已导出 '+list.length+' 个频道 (M3U)'); };
+  $('#ex-copy').onclick = ()=>copyText(toGenre(list, epg()));
   $('#m-cancel').onclick = closeModal;
 }
 
