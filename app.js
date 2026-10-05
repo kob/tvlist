@@ -64,11 +64,15 @@ function parseGenre(text){
     const idx = line.indexOf(',');
     if (idx < 0) continue;                 // 跳过无法识别的行
     const name = line.slice(0, idx).trim();
-    const rest = line.slice(idx + 1).trim();
+    let rest = line.slice(idx + 1).trim();
     if (!name) continue;
+    // 支持行尾 tvg-id（与 toGenre 导出格式互认）：名称,url1#url2,tvg-id=CCTV1
+    let tvgId = '';
+    const tm = rest.match(/,tvg-id=(.+)$/i);
+    if (tm){ tvgId = tm[1].trim(); rest = rest.slice(0, tm.index).trim(); }
     const urls = rest.split('#').map(u=>u.trim()).filter(Boolean);
     if (!urls.length) continue;
-    out.push(mkChannel({ name, group: g, urls }));
+    out.push(mkChannel({ name, group: g, tvgId, urls }));
   }
   return out;
 }
@@ -323,9 +327,10 @@ async function loadEpg(url){
       (epg.programmes[ch] = epg.programmes[ch] || []).push({ start:st, stop:sp||st, title: title?title.textContent.trim():'' });
     }
     state.epg = epg; state.epgUrl = url; localStorage.setItem(LS_EPG, url);
+    const filled = applyEpgIds();   // 把 EPG 匹配到的 id 回填进频道 tvg-id，便于导出/保存到仓库
     renderStats(); renderChannels();
     if (state.activeId){ const c = state.channels.find(x=>x.id===state.activeId); if(c) openDetail(c); }
-    toast(`EPG 加载完成：频道 ${Object.keys(epg.byId).length} 个，含节目 ${Object.values(epg.programmes).reduce((a,b)=>a+b.length,0)} 条`);
+    toast(`EPG 加载完成：频道 ${Object.keys(epg.byId).length} 个，含节目 ${Object.values(epg.programmes).reduce((a,b)=>a+b.length,0)} 条` + (filled?`；已为 ${filled} 个频道写入 tvg-id`:''));
   } catch(err){ toast('EPG 加载失败：' + err.message); }
 }
 /* ---------- EPG 名称归一化与模糊匹配 ---------- */
@@ -371,6 +376,18 @@ function matchEpg(ch){
   return { id:null, name:null, by:null, progs:[] };
 }
 function epgFor(ch){ return matchEpg(ch).progs; }
+// 把 EPG 模糊匹配命中的 id 回填到频道 tvg-id（仅当频道本身没有 tvg-id），
+// 这样导出 / 保存到仓库都会带上，外部播放器即可按 id 精确匹配 EPG。返回写入数量。
+function applyEpgIds(){
+  let n = 0;
+  for (const c of state.channels){
+    if (c.tvgId) continue;
+    const m = matchEpg(c);
+    if (m.id){ c.tvgId = m.id; n++; }
+  }
+  if (n) persist();
+  return n;
+}
 
 /* ---------- 编辑 / 新增 / 删除 ---------- */
 function openEdit(ch){
@@ -447,7 +464,14 @@ function toGenre(chs){
     map.get(c.group).push(c);
   }
   let s = '';
-  for (const g of order){ s += `${g},#genre#\n`; for (const c of map.get(g)) s += `${c.name},${c.urls.join('#')}\n`; }
+  for (const g of order){
+    s += `${g},#genre#\n`;
+    for (const c of map.get(g)){
+      let line = `${c.name},${c.urls.join('#')}`;
+      if (c.tvgId) line += `,tvg-id=${c.tvgId}`;   // 与 parseGenre 互认，供外部播放器按 id 匹配 EPG
+      s += line + '\n';
+    }
+  }
   return s;
 }
 function download(filename, text, mime='text/plain'){
