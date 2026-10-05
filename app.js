@@ -413,6 +413,78 @@ function openExport(){
   $('#m-cancel').onclick = closeModal;
 }
 
+/* ---------- 写回 GitHub 仓库 ---------- */
+const LS_SET = 'tvlist_github_settings_v1';
+function loadSettings(){ try{ return JSON.parse(localStorage.getItem(LS_SET)) || {}; }catch(_){ return {}; } }
+function saveSettings(s){ try{ localStorage.setItem(LS_SET, JSON.stringify(s)); }catch(_){} }
+function b64encode(str){
+  const bytes = new TextEncoder().encode(str); let bin = '';
+  for (let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+async function githubCommit(cfg, message, files){
+  const { owner, repo, branch, token } = cfg;
+  const api = `https://api.github.com/repos/${owner}/${repo}`;
+  const headers = { 'Authorization':`Bearer ${token}`, 'Accept':'application/vnd.github+json',
+    'Content-Type':'application/json', 'X-GitHub-Api-Version':'2022-11-28' };
+  const ref = await fetch(`${api}/git/refs/heads/${branch}`, {headers}).then(r=>{ if(!r.ok) throw new Error('读取分支失败 HTTP '+r.status); return r.json(); });
+  const baseSha = ref.object.sha;
+  const base = await fetch(`${api}/git/commits/${baseSha}`, {headers}).then(r=>r.json());
+  const baseTree = base.tree.sha;
+  const entries = [];
+  for (const f of files){
+    const blob = await fetch(`${api}/git/blobs`, {method:'POST', headers, body:JSON.stringify({content:b64encode(f.content), encoding:'base64'})})
+      .then(r=>{ if(!r.ok) throw new Error('创建 blob 失败'); return r.json(); });
+    entries.push({ path:f.path, mode:'100644', type:'blob', sha:blob.sha });
+  }
+  const tree = await fetch(`${api}/git/trees`, {method:'POST', headers, body:JSON.stringify({base_tree:baseTree, tree:entries})})
+    .then(r=>{ if(!r.ok) throw new Error('创建 tree 失败'); return r.json(); });
+  const commit = await fetch(`${api}/git/commits`, {method:'POST', headers, body:JSON.stringify({message, tree:tree.sha, parents:[baseSha]})})
+    .then(r=>{ if(!r.ok) throw new Error('创建 commit 失败'); return r.json(); });
+  await fetch(`${api}/git/refs/heads/${branch}`, {method:'PATCH', headers, body:JSON.stringify({sha:commit.sha})})
+    .then(r=>{ if(!r.ok) throw new Error('更新引用失败'); return r.json(); });
+  return { short: commit.sha.slice(0,7) };
+}
+function openCreds(then){
+  const s = loadSettings();
+  $('#modal-title').textContent = '保存到 GitHub 仓库';
+  $('#modal-body').innerHTML = `
+    <div class="muted" style="margin-bottom:10px">把当前频道列表以「中文源」格式写回仓库的 <code>index.m3u</code> 与 <code>yc.txt</code>（一次提交）。需要具有 repo 权限的 Personal Access Token。令牌仅保存在本浏览器，不会写入仓库或源码。</div>
+    <div class="row2">
+      <div class="field"><label>仓库 owner</label><input id="c-owner" value="${escapeHtml(s.owner||'kob')}"></div>
+      <div class="field"><label>仓库名</label><input id="c-repo" value="${escapeHtml(s.repo||'tvlist')}"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>分支</label><input id="c-branch" value="${escapeHtml(s.branch||'main')}"></div>
+      <div class="field"><label>PAT 令牌</label><input id="c-token" type="password" value="${escapeHtml(s.token||'')}" placeholder="ghp_..."></div>
+    </div>
+    <label class="muted" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="c-remember" ${s.token?'checked':''}> 记住令牌（仅本浏览器 localStorage，取消勾选并写回即可清除）</label>`;
+  $('#modal-foot').innerHTML = `<button id="m-clear">清除已存令牌</button><button id="m-cancel">取消</button><button class="primary" id="m-ok">写回仓库</button>`;
+  $('#modal-mask').hidden = false;
+  $('#m-cancel').onclick = closeModal;
+  $('#m-clear').onclick = ()=>{ saveSettings({owner:s.owner||'kob',repo:s.repo||'tvlist',branch:s.branch||'main'}); $('#c-token').value=''; $('#c-remember').checked=false; toast('已清除本浏览器保存的令牌'); };
+  $('#m-ok').onclick = ()=>{
+    const cfg = { owner:$('#c-owner').value.trim()||'kob', repo:$('#c-repo').value.trim()||'tvlist',
+      branch:$('#c-branch').value.trim()||'main', token:$('#c-token').value.trim() };
+    if (!cfg.token){ toast('请填写 PAT 令牌'); return; }
+    if ($('#c-remember').checked) saveSettings(cfg); else saveSettings({owner:cfg.owner,repo:cfg.repo,branch:cfg.branch});
+    closeModal(); then(cfg);
+  };
+}
+function saveToRepo(){
+  const content = toGenre(state.channels);   // 全部频道，中文源格式
+  const doCommit = (cfg)=>{
+    toast('正在写回仓库…');
+    githubCommit(cfg, 'chore: update playlist via web client', [
+      { path:'index.m3u', content },
+      { path:'yc.txt', content },
+    ]).then(res=> toast('已保存到仓库 ✅ commit ' + (res.short||'ok')))
+      .catch(err=> toast('写回失败：' + err.message));
+  };
+  const s = loadSettings();
+  if (s.token){ doCommit(s); } else { openCreds(doCommit); }
+}
+
 /* ---------- 持久化 ---------- */
 function persist(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(state.channels.map(c=>({name:c.name,group:c.group,logo:c.logo,tvgId:c.tvgId,urls:c.urls})))); }catch(_){} }
 function restore(){
@@ -474,6 +546,7 @@ function bind(){
     $('#m-load').onclick = ()=>{ const u=$('#epg-url').value.trim()||'112114.xml'; closeModal(); loadEpg(u); };
   };
   $('#btn-export').onclick = openExport;
+  $('#btn-save').onclick = saveToRepo;
   $('#btn-theme').onclick = ()=>{
     const cur = document.documentElement.getAttribute('data-theme');
     const next = cur==='dark'?'light':'dark';
