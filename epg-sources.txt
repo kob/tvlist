@@ -3,10 +3,10 @@
 # GitHub Action 会每日拉取下面所有源，合并去重后生成单一 epg.xml 提交回仓库。
 # 想增减源，直接编辑此文件的 URL 列表即可（需 commit 到仓库才会被 Action 使用）。
 # 合并规则：<channel> 按 id 去重，<programme> 按 (channel, start) 去重。
+#
+# 当前仅启用一个源（erw）。如需恢复其它源，去掉下面对应行的注释即可：
+# https://gitee.com/taksssss/tv/raw/main/epg/112114.xml.gz
+# https://gitee.com/taksssss/tv/raw/main/epg/epgpw_hk.xml.gz
+# https://gitee.com/taksssss/tv/raw/main/epg/epgpw_tw.xml.gz
 
-# 默认源
-https://gitee.com/taksssss/tv/raw/main/epg/112114.xml.gz
-# 其它源（用户追加）
 https://gitee.com/taksssss/tv/raw/main/epg/erw.xml.gz
-https://gitee.com/taksssss/tv/raw/main/epg/epgpw_hk.xml.gz
-https://gitee.com/taksssss/tv/raw/main/epg/epgpw_tw.xml.gz

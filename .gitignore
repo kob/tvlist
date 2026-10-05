@@ -1,4 +1,4 @@
-# 生成的 EPG 产物（由 Action 自行生成并提交，不要手动物理提交明文大文件）
-epg.xml
+# 生成的 EPG 压缩产物（防止误提交 .gz；明文 epg.xml 由 Action 正常入库）
+epg.xml.gz
 __pycache__/
 *.pyc

@@ -17,7 +17,7 @@ const state = {
   sort: 'order',
   selected: new Set(),
   epg: { byId:{}, byName:{}, programmes:{} },
-  epgUrl: localStorage.getItem(LS_EPG) || 'epg.xml.gz',
+  epgUrl: localStorage.getItem(LS_EPG) || 'epg.xml',
   activeId: null,
 };
 
@@ -551,13 +551,13 @@ function bind(){
   };
   $('#btn-epg').onclick = ()=>{
     $('#modal-title').textContent = '加载 EPG (XMLTV)';
-    $('#modal-body').innerHTML = `<div class="field"><label>XMLTV 地址（仓库内默认 epg.xml.gz，或任意 URL / 留空加载默认）</label>
-      <input id="epg-url" value="${escapeHtml(state.epgUrl)}" placeholder="epg.xml.gz 或 https://.../epg.xml"></div>
+    $('#modal-body').innerHTML = `<div class="field"><label>XMLTV 地址（仓库内默认 epg.xml，或任意 URL / 留空加载默认）</label>
+      <input id="epg-url" value="${escapeHtml(state.epgUrl)}" placeholder="epg.xml 或 https://.../epg.xml"></div>
       <div class="muted">EPG 会按频道 tvg-id 优先、名称次之自动匹配到节目单。地址以 .gz 结尾时会自动解压。</div>`;
     $('#modal-foot').innerHTML = `<button id="m-cancel">取消</button><button class="primary" id="m-load">加载</button>`;
     $('#modal-mask').hidden = false;
     $('#m-cancel').onclick = closeModal;
-    $('#m-load').onclick = ()=>{ const u=$('#epg-url').value.trim()||'epg.xml.gz'; closeModal(); loadEpg(u); };
+    $('#m-load').onclick = ()=>{ const u=$('#epg-url').value.trim()||'epg.xml'; closeModal(); loadEpg(u); };
   };
   $('#btn-export').onclick = openExport;
   $('#btn-save').onclick = saveToRepo;
