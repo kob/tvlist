@@ -199,7 +199,8 @@ function updateSelCount(){
 /* ---------- 详情 / EPG / 播放 ---------- */
 function openDetail(ch, autoplay){
   state.activeId = ch.id;
-  const hasEpg = epgFor(ch).length > 0;
+  const m = matchEpg(ch);
+  const hasEpg = m.progs.length > 0;
   const logo = ch.logo ? `<img src="${escapeHtml(ch.logo)}" onerror="this.style.display='none'">` : '📺';
   let html = `<div class="d-title">${logo}<span>${escapeHtml(ch.name)}</span></div>
     <div class="d-sub">分组：${escapeHtml(ch.group)}${ch.tvgId?` · tvg-id: ${escapeHtml(ch.tvgId)}`:''} · ${ch.urls.length} 个源</div>`;
@@ -208,9 +209,9 @@ function openDetail(ch, autoplay){
   html += `<div class="d-sec">▶ 预览播放</div><div id="player-slot"></div>`;
 
   // EPG
-  html += `<div class="d-sec">📡 节目单 (EPG)</div>`;
+  html += `<div class="d-sec">📡 节目单 (EPG)${hasEpg?` <span class="epg-badge">已匹配 ${escapeHtml(m.name||m.id||'')} · ${escapeHtml(m.by||'')}</span>`:''}</div>`;
   if (hasEpg){
-    const progs = epgFor(ch);
+    const progs = m.progs;
     const now = Date.now();
     const cur = progs.find(p => p.start<=now && p.stop>now);
     const next = progs.find(p => p.start>now);
@@ -298,12 +299,20 @@ async function loadEpg(url){
     }
     const doc = new DOMParser().parseFromString(txt, 'application/xml');
     if (doc.querySelector('parsererror')) throw new Error('XML 解析失败');
-    const epg = { byId:{}, byName:{}, programmes:{} };
+    const epg = { byId:{}, byName:{}, normIndex:{}, coreIndex:{}, programmes:{} };
     for (const c of [...doc.getElementsByTagName('channel')]){
       const id = c.getAttribute('id'); if(!id) continue;
-      const dn = c.getElementsByTagName('display-name')[0];
-      const name = dn ? dn.textContent.trim() : id;
+      const dns = [...c.getElementsByTagName('display-name')].map(x=>x.textContent.trim()).filter(Boolean);
+      const name = dns[0] || id;
       epg.byId[id] = name; epg.byName[name.toLowerCase()] = id;
+      // 归一化 / 核心标识索引，用于模糊匹配（CCTV1/CCTV-1/CCTV1综合、浙江卫视/浙江卫视4K 等）
+      const aliases = [id, name, ...dns];
+      for (const a of aliases){
+        const na = normName(a);
+        if (na) epg.normIndex[na] = id;
+        const ck = coreKey(a);
+        if (ck && !epg.coreIndex[ck]) epg.coreIndex[ck] = id;  // 首个核心命中优先（更接近原标识）
+      }
     }
     for (const p of [...doc.getElementsByTagName('programme')]){
       const ch = p.getAttribute('channel'); if(!ch) continue;
@@ -319,12 +328,49 @@ async function loadEpg(url){
     toast(`EPG 加载完成：频道 ${Object.keys(epg.byId).length} 个，含节目 ${Object.values(epg.programmes).reduce((a,b)=>a+b.length,0)} 条`);
   } catch(err){ toast('EPG 加载失败：' + err.message); }
 }
-function epgFor(ch){
-  if (ch.tvgId && state.epg.programmes[ch.tvgId]) return state.epg.programmes[ch.tvgId];
-  const id = state.epg.byName[(ch.name||'').toLowerCase()];
-  if (id && state.epg.programmes[id]) return state.epg.programmes[id];
-  return [];
+/* ---------- EPG 名称归一化与模糊匹配 ---------- */
+// 归一化：小写 + 去空白与常见分隔符，使 CCTV1 / CCTV-1 / CCTV1综合 等写法互通
+function normName(s){
+  return (s||'').toLowerCase().replace(/[\s\-_·./、()（）]/g,'');
 }
+// 核心标识：CCTV 系列取 cctv+数字+字母后缀（K/+/8K 等保留，使 CCTV4K 独立；CCTV1综合 的去中文后缀仍归 CCTV1）；
+// 其余去掉末尾修饰词（综合/频道/高清/4K 等），如 浙江卫视4K -> 浙江卫视
+const EPG_MOD_SUFFIX = /(综合|频道|高清|超清|标清|hd|4k|sd|plus|版|电视台)$/;
+function coreKey(s){
+  const n = normName(s);
+  const m = n.match(/cctv(\d+)([a-z+]*)/);
+  if (m) return 'cctv'+m[1]+m[2];
+  let c = n, prev;
+  do { prev = c; c = c.replace(EPG_MOD_SUFFIX, ''); } while (c !== prev && c.length > 0);
+  return c;
+}
+// 多级匹配：tvg-id → 名称归一化精确 → 核心标识（宽松）
+function matchEpg(ch){
+  const epg = state.epg;
+  if (!epg || !ch) return { id:null, name:null, by:null, progs:[] };
+  // 1) tvg-id（原样或归一化）
+  if (ch.tvgId){
+    const tid = ch.tvgId.trim();
+    if (epg.byId[tid] || epg.programmes[tid])
+      return { id:tid, name:epg.byId[tid]||tid, by:'tvg-id', progs:epg.programmes[tid]||[] };
+    const nid = normName(tid);
+    if (epg.normIndex[nid]){ const id = epg.normIndex[nid]; return { id, name:epg.byId[id]||id, by:'tvg-id', progs:epg.programmes[id]||[] }; }
+  }
+  // 2) 名称归一化精确
+  const nName = normName(ch.name);
+  if (nName && epg.normIndex[nName]){
+    const id = epg.normIndex[nName];
+    return { id, name:epg.byId[id]||id, by:'名称精确', progs:epg.programmes[id]||[] };
+  }
+  // 3) 核心标识（宽松：CCTV1综合 <-> CCTV-1、浙江卫视4K <-> 浙江卫视）
+  const ck = coreKey(ch.name);
+  if (ck && epg.coreIndex[ck]){
+    const id = epg.coreIndex[ck];
+    return { id, name:epg.byId[id]||id, by:'核心匹配', progs:epg.programmes[id]||[] };
+  }
+  return { id:null, name:null, by:null, progs:[] };
+}
+function epgFor(ch){ return matchEpg(ch).progs; }
 
 /* ---------- 编辑 / 新增 / 删除 ---------- */
 function openEdit(ch){
