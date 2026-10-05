@@ -16,7 +16,7 @@ const state = {
   search: '',
   sort: 'order',
   selected: new Set(),
-  epg: { byId:{}, byName:{}, programmes:{} },
+  epg: { byId:{}, byName:{}, normIndex:{}, coreIndex:{}, programmes:{} },
   epgUrl: localStorage.getItem(LS_EPG) || 'epg.xml',
   activeId: null,
 };
