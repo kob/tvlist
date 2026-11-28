@@ -1,0 +1,79 @@
+#EXTM3U url-tvg="epg.xml"
+#EXTINF:-1 tvg-name="至臻视界4K" group-title="🏀[移动]咪视界直播",至臻视界4K
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000015686&livemode=1&stbId=yu&mode=1&$4M
+#EXTINF:-1 tvg-name="至臻视界4K" group-title="🏀[移动]咪视界直播",至臻视界4K
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/5000000011000265001/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000015686&livemode=1&stbId=toShengfen&mode=1&$24M-FifastbLive
+#EXTINF:-1 tvg-name="咪视界4K" group-title="🏀[移动]咪视界直播",咪视界4K
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000005180/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000005180&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界1" group-title="🏀[移动]咪视界直播",咪视界1
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000001000008176/index.m3u8?channel-id=FifastbLive&Contentid=3000000001000008176&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界2" group-title="🏀[移动]咪视界直播",咪视界2
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000027691/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000027691&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界3" group-title="🏀[移动]咪视界直播",咪视界3
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000023434/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000023434&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界4" group-title="🏀[移动]咪视界直播",咪视界4
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000021904/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000021904&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界5" group-title="🏀[移动]咪视界直播",咪视界5
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000015560/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000015560&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界6" group-title="🏀[移动]咪视界直播",咪视界6
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000012558/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000012558&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界7" group-title="🏀[移动]咪视界直播",咪视界7
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000010833/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000010833&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界8" group-title="🏀[移动]咪视界直播",咪视界8
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000009788/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000009788&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界9" group-title="🏀[移动]咪视界直播",咪视界9
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000006077/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000006077&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界10" group-title="🏀[移动]咪视界直播",咪视界10
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/3000000010000004193/index.m3u8?channel-id=FifastbLive&Contentid=3000000010000004193&livemode=1&stbId=3$
+#EXTINF:-1 tvg-name="咪视界11" group-title="🏀[移动]咪视界直播",咪视界11
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000028638&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界12" group-title="🏀[移动]咪视界直播",咪视界12
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000005969&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界13" group-title="🏀[移动]咪视界直播",咪视界13
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000007218&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界14" group-title="🏀[移动]咪视界直播",咪视界14
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000008001&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界15" group-title="🏀[移动]咪视界直播",咪视界15
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000010129&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界16" group-title="🏀[移动]咪视界直播",咪视界16
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000010948&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界17" group-title="🏀[移动]咪视界直播",咪视界17
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000031494&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界18" group-title="🏀[移动]咪视界直播",咪视界18
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000000097&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界19" group-title="🏀[移动]咪视界直播",咪视界19
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000002019&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界20" group-title="🏀[移动]咪视界直播",咪视界20
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000003915&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界21" group-title="🏀[移动]咪视界直播",咪视界21
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000005837&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界22" group-title="🏀[移动]咪视界直播",咪视界22
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000006658&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界23" group-title="🏀[移动]咪视界直播",咪视界23
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000011297&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界24" group-title="🏀[移动]咪视界直播",咪视界24
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000012616&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界25" group-title="🏀[移动]咪视界直播",咪视界25
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000015470&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界26" group-title="🏀[移动]咪视界直播",咪视界26
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000019839&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界27" group-title="🏀[移动]咪视界直播",咪视界27
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000025380&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界28" group-title="🏀[移动]咪视界直播",咪视界28
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000027691&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界29" group-title="🏀[移动]咪视界直播",咪视界29
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000031669&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界30" group-title="🏀[移动]咪视界直播",咪视界30
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000020000011522&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界31" group-title="🏀[移动]咪视界直播",咪视界31
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=ystenlive&Contentid=1000000006000270004&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界32" group-title="🏀[移动]咪视界直播",咪视界32
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000005308&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界33" group-title="🏀[移动]咪视界直播",咪视界33
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000001000008379&livemode=1&stbId=yu&mode=1&$8M
+#EXTINF:-1 tvg-name="咪视界34" group-title="🏀[移动]咪视界直播",咪视界34
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000002809&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界35" group-title="🏀[移动]咪视界直播",咪视界35
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000015560&livemode=1&stbId=yu&mode=1&$5M
+#EXTINF:-1 tvg-name="咪视界36" group-title="🏀[移动]咪视界直播",咪视界36
+http://221.181.100.26/gslbserv.itv.cmvideo.cn/1.m3u8?channel-id=FifastbLive&Contentid=3000000010000023434&livemode=1&stbId=yu&mode=1&$5M
